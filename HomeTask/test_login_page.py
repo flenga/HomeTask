@@ -30,18 +30,6 @@ class Test_Login_Page:
         context.close()
         browser.close()
 
-    # def test_wait_for_error_message(self):
-    #     login_page.fill_email_address(user_email)
-    #     login_page.type_password(password)
-    #     login_page.login_button()
-    #     try:
-    #         error_message = page.locator("text=Sign in Failed - NonJsonResponseError")
-    #         error_message.wait_for(timeout=5000)  # Timeout in milliseconds
-    #         assert error_message.is_visible(), "Error message not visible"
-    #         log_message = "Error message appeared as expected."
-    #         logger.info({log_message})
-    #     except PlaywrightTimeoutError:
-    #         logger.info("Error message did not appear within the timeout.")
     def test_wait_for_error_or_success_message(self):
         # Fill the login form and submit
         login_page.fill_email_address(user_email)
