@@ -13,7 +13,6 @@ This repository contains a test automation script for verifying the login functi
 To get started, you need to have the following tools installed:
 
 - **Python 3.x**: Ensure you have Python installed on your machine. If not, you can download and install it from [python.org](https://www.python.org/downloads/).
-- **Node.js**: Playwright relies on Node.js for its installation. Download and install Node.js from [nodejs.org](https://nodejs.org/).
 - **Playwright**: A fast and reliable automation library for browser testing.
 - **pytest**: A framework that makes building simple and scalable test cases easy.
 
