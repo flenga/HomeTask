@@ -1,54 +1,50 @@
 import pytest
 import logging
-from playwright.sync_api import Playwright
 from login_main_page import Login_page_main
-from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
-from logger import logger
+from playwright.sync_api import Playwright, TimeoutError as PlaywrightTimeoutError
+from logger import get_logger
 
 logging.basicConfig(level=logging.INFO)
-logger = logger()
+logger = get_logger()
 
-
-password = '123456'
-user_email = 'doron@gmail.com'
-form_message = 'This is the place where I type some text in the Form!!!!'
+PASSWORD = '123456'
+USER_EMAIL = 'TestUser@gmail.com'
+TIMEOUT = 5000
+SLOW_MO = 1000
 
 
 class Test_Login_Page:
     @pytest.fixture(scope="class", autouse=True)
     def setup(self, playwright: Playwright):
         global browser, context, page, login_page
-        browser = playwright.chromium.launch(headless=False, channel="chrome", slow_mo=1000)
+        browser = playwright.chromium.launch(headless=False, channel="chrome", slow_mo=SLOW_MO)
         context = browser.new_context()
         page = context.new_page()
         page.goto("https://web.eos.bnk-il.com/auth")
         login_page = Login_page_main(page)
         yield
-
-        # Teardown after tests
-    def teardown_class(self):
         context.close()
         browser.close()
 
     def test_wait_for_error_or_success_message(self):
-        # Fill the login form and submit
-        login_page.fill_email_address(user_email)
-        login_page.type_password(password)
+        login_page.fill_email_address(USER_EMAIL)
+        login_page.type_password(PASSWORD)
         login_page.submit_button()
 
         try:
-            page.wait_for_selector("text=Sign in Failed - NonJsonResponseError", timeout=5000)
             error_message = page.locator("text=Sign in Failed - NonJsonResponseError")
+            error_message.wait_for(state="visible", timeout=TIMEOUT)
 
             if error_message.is_visible():
-                logger.info("Error message appeared as expected.")
-                assert True, "Error message is visible as expected."
+                logger.info(f"The login error message appeared as expected. user is not valid and couldn't login to"
+                            f" the site!")
+                assert True, f"The login error message appeared as expected. user is not valid and couldn't login to " \
+                             f"the site!"
 
         except PlaywrightTimeoutError:
             try:
-                # Check for an alternative success message if the error does not appear
-                page.wait_for_selector("text=Sign in Successful", timeout=5000)
                 success_message = page.locator("text=Sign in Successful")
+                success_message.wait_for(state="visible", timeout=TIMEOUT)
 
                 if success_message.is_visible():
                     logger.info("Success message appeared as expected.")
@@ -57,6 +53,3 @@ class Test_Login_Page:
             except PlaywrightTimeoutError:
                 logger.error("Neither error nor success message appeared within the timeout.")
                 assert False, "No relevant message appeared within the timeout."
-
-                # Additional assertions can be added if required
-            logger.info("Test case completed.")
